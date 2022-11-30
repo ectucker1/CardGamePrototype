@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardGameCommon", "CardGameCommon\CardGameCommon.csproj", "{DB676859-6F36-4330-8B1C-8B3C565F06ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardGameClient", "CardGameClient\CardGameClient.csproj", "{A819F903-4B7E-47E4-B6A7-4E1E5181D39A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardGameServer", "CardGameServer\CardGameServer.csproj", "{0499E3B7-7539-4792-9DCD-C6B176CBB4A0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DB676859-6F36-4330-8B1C-8B3C565F06ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB676859-6F36-4330-8B1C-8B3C565F06ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB676859-6F36-4330-8B1C-8B3C565F06ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB676859-6F36-4330-8B1C-8B3C565F06ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A819F903-4B7E-47E4-B6A7-4E1E5181D39A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A819F903-4B7E-47E4-B6A7-4E1E5181D39A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A819F903-4B7E-47E4-B6A7-4E1E5181D39A}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{A819F903-4B7E-47E4-B6A7-4E1E5181D39A}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{0499E3B7-7539-4792-9DCD-C6B176CBB4A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0499E3B7-7539-4792-9DCD-C6B176CBB4A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0499E3B7-7539-4792-9DCD-C6B176CBB4A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0499E3B7-7539-4792-9DCD-C6B176CBB4A0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
