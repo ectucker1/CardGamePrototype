@@ -1,0 +1,11 @@
+@startuml
+
+participant "Game Client 1" as Client1
+participant "Game Server" as Server
+participant "Game Client 2" as Client2
+
+Client1 -> Server: Play Card 1
+activate Server
+Server -> Server: Validate Move
+
+@enduml

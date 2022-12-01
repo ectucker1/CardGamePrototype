@@ -1,0 +1,29 @@
+@startuml
+
+participant "Game Client 1" as Client1
+participant "Game Server" as Server
+participant "Game Client 2" as Client2
+
+Client1 -> Server: GET /lobby/create
+activate Server
+Server -> Server: Generate Lobby Code "ABCDE"
+Server --> Client1: Return Lobby Code "ABCDE"
+deactivate Server
+
+Client1 -> Server: Open Socket at /game/ABCDE
+activate Server
+Server -> Server: Find Lobby "ABCDE"
+Server -> Server: Connect Socket to Lobby
+Server --> Client1: Socket Connected
+deactivate Server
+
+Client2 -> Server: Open Socket at /game/ABCDE
+activate Server
+Server -> Server: Find Lobby "ABCDE"
+Server -> Server: Connect Socket to Lobby
+Server --> Client2: Socket Connected
+Server --> Client1: Client 2 Joined
+Server --> Client2: Current Player List
+deactivate Server
+
+@enduml
