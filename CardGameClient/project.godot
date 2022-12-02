@@ -11,8 +11,12 @@ config_version=4
 [application]
 
 config/name="CardGameClient"
-run/main_scene="res://Lobby/Lobby.tscn"
+run/main_scene="res://Home/Home.tscn"
 config/icon="res://icon.png"
+
+[autoload]
+
+Lobby="*res://Data/Lobby.tscn"
 
 [display]
 
