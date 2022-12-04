@@ -87,9 +87,12 @@ public class PlayingScreen : Node
             cardDisplay.Color = CardColor(card);
             _selfHand.AddChild(cardDisplay);
 
-            var playButton = cardDisplay.FindNode("PlayButton") as Button;
-            playButton.Visible = true;
-            playButton.Connect("pressed", this, nameof(PlayCard), new Array() { i }, (uint)ConnectFlags.Oneshot);
+            if (state.CurrentTurn == Lobby.Instance.SelfID)
+            {
+                var playButton = cardDisplay.FindNode("PlayButton") as Button;
+                playButton.Visible = true;
+                playButton.Connect("pressed", this, nameof(PlayCard), new Array() { i }, (uint)ConnectFlags.Oneshot);
+            }
         }
         
         for (int i = 0; i < _opponentBox.GetChildCount(); i++)

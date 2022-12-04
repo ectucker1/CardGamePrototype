@@ -29,6 +29,9 @@ namespace CardGameCommon.States.Playing
         [ProtoMember(5)]
         public Dictionary<uint, uint> Scores { get; private set; } = new Dictionary<uint, uint>();
 
+        [ProtoMember(6)]
+        public uint CurrentTurn = 0;
+
         public PlayingState(LobbyState from)
         {
             PlayerList = from.PlayerList;
@@ -40,6 +43,13 @@ namespace CardGameCommon.States.Playing
                 };
                 Scores[player.Key] = 0;
             }
+
+            uint lowest = UInt32.MaxValue;
+            foreach (var player in PlayerList.Players)
+            {
+                lowest = Math.Min(player.Key, lowest);
+            }
+            CurrentTurn = lowest;
 
             Deck = Enumerable.Repeat(Card.UNKOWN, INITIAL_DECK_SIZE).ToList();
         }
@@ -94,6 +104,7 @@ namespace CardGameCommon.States.Playing
             {
                 case PlayCard playCard:
                     return source == playCard.PlayerID
+                           && CurrentTurn == playCard.PlayerID
                            && playCard.Index >= 0
                            && playCard.Index < Hands[playCard.PlayerID].Cards.Count
                            && Hands[playCard.PlayerID].Cards[playCard.Index] == playCard.Card;
@@ -102,6 +113,21 @@ namespace CardGameCommon.States.Playing
             }
         }
 
+        private uint NextTurn()
+        {
+            SortedSet<uint> ids = new SortedSet<uint>();
+            foreach (var player in PlayerList.Players)
+                ids.Add(player.Key);
+            
+            List<uint> ordered = new List<uint>();
+            ordered.AddRange(ids);
+            
+            int i = ordered.IndexOf(CurrentTurn);
+            int nextI = (i + 1) % ordered.Count;
+            
+            return ordered[nextI];
+        }
+        
         public IGameState HandleMessage(IMessage message)
         {
             switch (message)
@@ -121,6 +147,7 @@ namespace CardGameCommon.States.Playing
                     }
                     Scores[playCard.PlayerID] += score;
                     PlayArea.Add(playCard.Card);
+                    CurrentTurn = NextTurn();
                     break;
             }
             return this;
