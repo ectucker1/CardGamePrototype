@@ -26,6 +26,9 @@ namespace CardGameCommon.States.Playing
         [ProtoMember(4)]
         public List<Card> PlayArea { get; private set; } = new List<Card>();
 
+        [ProtoMember(5)]
+        public Dictionary<uint, uint> Scores { get; private set; } = new Dictionary<uint, uint>();
+
         public PlayingState(LobbyState from)
         {
             PlayerList = from.PlayerList;
@@ -35,6 +38,7 @@ namespace CardGameCommon.States.Playing
                 {
                     Cards = Enumerable.Repeat(Card.UNKOWN, INITIAL_HAND_SIZE).ToList()
                 };
+                Scores[player.Key] = 0;
             }
 
             Deck = Enumerable.Repeat(Card.UNKOWN, INITIAL_DECK_SIZE).ToList();
@@ -107,6 +111,15 @@ namespace CardGameCommon.States.Playing
                     break;
                 case PlayCard playCard:
                     Hands[playCard.PlayerID].Cards.RemoveAt(playCard.Index);
+                    uint score = 0;
+                    foreach (var card in PlayArea)
+                    {
+                        if (card == playCard.Card)
+                        {
+                            score += 1;
+                        }
+                    }
+                    Scores[playCard.PlayerID] += score;
                     PlayArea.Add(playCard.Card);
                     break;
             }

@@ -75,6 +75,8 @@ public class PlayingScreen : Node
     private void UpdateDisplay(PlayingState state)
     {
         _selfName.Text = state.PlayerList.GetPlayer(Lobby.Instance.SelfID).Name;
+        _selfScore.Text = $"Score {state.Scores[Lobby.Instance.SelfID]}";
+        
         for (int i = 0; i < _selfHand.GetChildCount(); i++)
             _selfHand.GetChild(i).QueueFree();
         for (int i = 0; i < state.Hands[Lobby.Instance.SelfID].Cards.Count; i++)
@@ -104,6 +106,8 @@ public class PlayingScreen : Node
                 var opponentHand = opponentDisplay.FindNode("Hand") as Control;
 
                 opponentName.Text = opponent.Name;
+                opponentScore.Text = $"Score {state.Scores[opponent.ID]}";
+                
                 foreach (var card in state.Hands[opponent.ID].Cards)
                 {
                     var cardDisplay = _cardScene.Instance<ColorRect>();
