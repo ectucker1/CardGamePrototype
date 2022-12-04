@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using System.Collections.Generic;
+using ProtoBuf;
 
 namespace CardGameCommon.States
 {
@@ -6,6 +7,8 @@ namespace CardGameCommon.States
     {
         PlayerList PlayerList { get; }
 
+        IEnumerable<PlayerMessage> InitServerSecrets();
+        
         bool ValidateMessage(uint source, IMessage message);
         
         IGameState HandleMessage(IMessage message);

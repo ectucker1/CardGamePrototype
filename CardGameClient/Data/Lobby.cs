@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using CardGameCommon;
 using CardGameCommon.States;
+using CardGameCommon.States.Playing;
 using Godot;
 
 public enum LobbyConnectState
@@ -92,6 +93,15 @@ public class Lobby : Node
         ConnectState = LobbyConnectState.NONE;
         LobbyCode = "";
         _socketClient.Call("disconnect_host");
+    }
+
+    public void SendMessage(IMessage message)
+    {
+        if (ConnectState == LobbyConnectState.JOINED)
+        {
+            byte[] bytes = MessageBuilder.WriteMessage(message);
+            _socketClient.Call("send_bytes", bytes);
+        }
     }
     
     private void _OnCreateLobbyRequestCompleted(int result, int responseCode, string[] headers, byte[] body)

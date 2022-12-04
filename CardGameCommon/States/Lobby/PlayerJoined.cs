@@ -9,6 +9,6 @@ namespace CardGameCommon.Lobby
         [ProtoMember(1)]
         public Player Player { get; set; }
 
-        public IMessage FilterSecrets() => this;
+        public IMessage FilterSecrets(uint _) => this;
     }
 }

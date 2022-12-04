@@ -19,6 +19,10 @@ func connect_url(url: String) -> bool:
 	var err = _client.connect_to_url(url)
 	return err == OK
 
+func send_bytes(bytes) -> bool:
+	var err = _client.get_peer(1).put_packet(bytes)
+	return err == OK
+
 func disconnect_host():
 	_client.disconnect_from_host()
 

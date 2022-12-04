@@ -35,17 +35,15 @@ public class GameMessageHandler : WebSocketHandler
             }
         }
     }
-
+    
     protected async Task HandleThenSendMessageToAllAsync(IMessage message, bool filter = false)
     {
         _gameState = _gameState.HandleMessage(message);
         await SendMessageToAllAsync(message, filter);
-    }
-    
-    protected async Task HandleThenSendSecretMessageToAllAsync(IMessage message, uint owner)
-    {
-        _gameState = _gameState.HandleMessage(message);
-        await SendSecretMessageToAllAsync(message, owner);
+        foreach (var init in _gameState.InitServerSecrets())
+        {
+            await SendMessageToAsync(init.PlayerID, init.Message);
+        }
     }
 
     public override async Task OnConnected(WebSocket socket)
@@ -85,8 +83,7 @@ public class GameMessageHandler : WebSocketHandler
         
         if (_gameState.ValidateMessage(source, message))
         {
-            _gameState = _gameState.HandleMessage(message);
-            await SendMessageToAllAsync(message, true);
+            await HandleThenSendMessageToAllAsync(message);
         }
     }
 }

@@ -34,16 +34,31 @@ namespace CardGameCommon
             
             Console.WriteLine($"Registered {messageTypes.Count} message types.");
         }
+
+        private static byte[] IntToBytes(int intValue)
+        {
+            byte[] intBytes = BitConverter.GetBytes(intValue);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(intBytes);
+            return intBytes;
+        }
+
+        private static int IntFromBytes(byte[] bytes)
+        {
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(bytes);
+            return BitConverter.ToInt32(bytes, 0);
+        }
         
-        public static byte[] WriteMessage(IMessage message, bool filter)
+        public static byte[] WriteMessage(IMessage message, bool filter = false, uint to = 0)
         {
             if (filter)
-                message = message.FilterSecrets();
+                message = message.FilterSecrets(to);
 
             Type type = message.GetType();
             MemoryStream stream = new MemoryStream();
             stream.WriteByte(_messageIds[type]);
-            Serializer.NonGeneric.Serialize(stream, message);
+            Serializer.NonGeneric.SerializeWithLengthPrefix(stream, message, PrefixStyle.Fixed32, 0);
             return stream.ToArray();
         }
 
@@ -53,8 +68,15 @@ namespace CardGameCommon
                 return null;
 
             Type type = _messageTypes[message[0]];
-            MemoryStream protobuf = new MemoryStream(message, 1, message.Length - 1);
-            return Serializer.Deserialize(type, protobuf) as IMessage;
+            MemoryStream prefixed = new MemoryStream(message, 1, message.Length - 1);
+            int length = 0;
+            if (Serializer.TryReadLengthPrefix(prefixed, PrefixStyle.Fixed32, out length))
+            {
+                MemoryStream protobuf = new MemoryStream(message, 5, length);
+                return Serializer.Deserialize(type, protobuf) as IMessage;
+            }
+
+            return null;
         }
         
         private class PredictableTypeComparer : IComparer<Type>

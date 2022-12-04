@@ -1,5 +1,7 @@
 using Godot;
 using CardGameCommon.States;
+using CardGameCommon.States.Lobby;
+using CardGameCommon.States.Playing;
 
 public class LobbyScreen : Node
 {
@@ -33,6 +35,10 @@ public class LobbyScreen : Node
 	private void StateUpdated()
 	{
 		UpdatePlayerList();
+		if (Lobby.GameState is PlayingState)
+		{
+			GetTree().ChangeScene("res://Playing/Playing.tscn");
+		}
 	}
 
 	private void UpdatePlayerList()
@@ -53,6 +59,7 @@ public class LobbyScreen : Node
 	{
 		if (Lobby.Instance.ConnectState == LobbyConnectState.JOINED)
 		{
+			Lobby.Instance.SendMessage(new GameStart());
 		}
 	}
 

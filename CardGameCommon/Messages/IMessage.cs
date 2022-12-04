@@ -2,6 +2,6 @@
 {
     public interface IMessage
     {
-        IMessage FilterSecrets();
+        IMessage FilterSecrets(uint to);
     }
 }

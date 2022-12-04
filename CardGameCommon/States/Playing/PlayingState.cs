@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CardGameCommon.Lobby;
 using ProtoBuf;
@@ -10,12 +11,14 @@ namespace CardGameCommon.States.Playing
     {
         private const int INITIAL_HAND_SIZE = 5;
         private const int INITIAL_DECK_SIZE = 5;
+
+        private bool _serverInit = false;
         
         [ProtoMember(1)]
         public PlayerList PlayerList { get; private set; }
-        
+
         [ProtoMember(2)]
-        public Dictionary<uint, Hand> Hands { get; private set; }
+        public Dictionary<uint, Hand> Hands { get; private set; } = new Dictionary<uint, Hand>();
         
         [ProtoMember(3)]
         public List<Card> Deck { get; private set; }
@@ -27,25 +30,77 @@ namespace CardGameCommon.States.Playing
             {
                 Hands[player.Key] = new Hand()
                 {
-                    Player = player.Key,
                     Cards = Enumerable.Repeat(Card.UNKOWN, INITIAL_HAND_SIZE).ToList()
                 };
             }
 
             Deck = Enumerable.Repeat(Card.UNKOWN, INITIAL_DECK_SIZE).ToList();
         }
+
+        private Card RandomCard(Random rand)
+        {
+            int roll = rand.Next(0, 3);
+            switch (roll)
+            {
+                case 0:
+                    return Card.RED;
+                case 1:
+                    return Card.GREEN;
+                case 2:
+                    return Card.BLUE;
+                default:
+                    return Card.RED;
+            }
+        }
+        
+        public IEnumerable<PlayerMessage> InitServerSecrets()
+        {
+            if (!_serverInit)
+            {
+                Random rand = new Random();
+                for (int i = 0; i < Deck.Count; i++)
+                {
+                    Deck[i] = RandomCard(rand);
+                }
+            
+                foreach (var player in PlayerList.Players.Values)
+                {
+                    for (int i = 0; i < Hands[player.ID].Cards.Count; i++)
+                    {
+                        Hands[player.ID].Cards[i] = RandomCard(rand);
+                    }
+
+                    yield return new PlayerMessage(player.ID, new SetHand()
+                    {
+                        Player = player.ID,
+                        NewHand = Hands[player.ID]
+                    });
+                }
+
+                _serverInit = true;
+            }
+        }
         
         public bool ValidateMessage(uint source, IMessage message)
         {
-            return true;
+            return false;
         }
 
         public IGameState HandleMessage(IMessage message)
         {
+            switch (message)
+            {
+                case SetHand hand:
+                    Hands[hand.Player] = hand.NewHand;
+                    break;
+            }
             return this;
         }
-
-
-        public IMessage FilterSecrets() => this;
+        
+        public IMessage FilterSecrets(uint to)
+        {
+            // TODO filter out deck and hands
+            return this;
+        }
     }
 }

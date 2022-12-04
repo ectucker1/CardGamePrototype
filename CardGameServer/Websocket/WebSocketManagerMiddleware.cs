@@ -28,7 +28,7 @@ public class WebSocketManagerMiddleware
 
         await Receive(socket, async (result, buffer) =>
         {
-            if(result.MessageType == WebSocketMessageType.Text)
+            if(result.MessageType == WebSocketMessageType.Binary)
             {
                 await _webSocketHandler.ReceiveAsync(socket, result, buffer);
             }

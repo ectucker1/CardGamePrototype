@@ -1,4 +1,6 @@
-﻿using CardGameCommon.Lobby;
+﻿using System;
+using System.Collections.Generic;
+using CardGameCommon.Lobby;
 using CardGameCommon.States.Lobby;
 using CardGameCommon.States.Playing;
 using ProtoBuf;
@@ -11,12 +13,21 @@ namespace CardGameCommon.States
         [ProtoMember(1)]
         public PlayerList PlayerList { get; private set; } = new PlayerList();
 
+        public IEnumerable<PlayerMessage> InitServerSecrets() => Array.Empty<PlayerMessage>();
+        
         public bool ValidateMessage(uint source, IMessage message)
         {
-            if (source != 0)
-                return false;
-            
-            return true;
+            switch (message)
+            {
+                case GameStart start:
+                    return true;
+                case PlayerJoined joined:
+                    return source == 0;
+                case PlayerLeft left:
+                    return source == 0;
+                default:
+                    return false;
+            }
         }
 
         public IGameState HandleMessage(IMessage message)
@@ -36,6 +47,6 @@ namespace CardGameCommon.States
             return this;
         }
 
-        public IMessage FilterSecrets() => this;
+        public IMessage FilterSecrets(uint _) => this;
     }
 }
