@@ -4,7 +4,6 @@ using ProtoBuf;
 namespace CardGameCommon.Lobby
 {
     [ProtoContract]
-    [Message]
     public class PlayerJoined : IMessage
     {
         [ProtoMember(1)]

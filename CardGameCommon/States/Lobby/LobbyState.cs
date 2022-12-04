@@ -6,7 +6,6 @@ using ProtoBuf;
 namespace CardGameCommon.States
 {
     [ProtoContract]
-    [Message]
     public class LobbyState : IGameState
     {
         [ProtoMember(1)]

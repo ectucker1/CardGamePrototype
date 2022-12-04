@@ -18,8 +18,7 @@ namespace CardGameCommon
             Assembly lib = typeof(MessageBuilder).Assembly;
             foreach (Type type in lib.GetTypes())
             {
-                MessageAttribute attrib = type.GetCustomAttribute<MessageAttribute>();
-                if (attrib != null)
+                if (typeof(IMessage).IsAssignableFrom(type))
                 {
                     messageTypes.Add(type);
                 }

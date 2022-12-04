@@ -6,7 +6,6 @@ using ProtoBuf;
 namespace CardGameCommon.States.Playing
 {
     [ProtoContract]
-    [Message]
     public class PlayingState : IGameState
     {
         private const int INITIAL_HAND_SIZE = 5;
