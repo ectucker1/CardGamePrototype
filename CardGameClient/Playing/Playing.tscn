@@ -1,8 +1,66 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://Playing/PlayingScreen.cs" type="Script" id=1]
+[ext_resource path="res://Assets/UI/MinimalUI/MinimalUI.tres" type="Theme" id=3]
 
 [node name="PlayingScreen" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+theme = ExtResource( 3 )
 script = ExtResource( 1 )
+
+[node name="OpponentBox" type="HBoxContainer" parent="."]
+anchor_right = 1.0
+margin_left = 50.0
+margin_top = 50.0
+margin_right = -50.0
+
+[node name="Center" type="Control" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -500.0
+margin_top = -75.0
+margin_right = 500.0
+margin_bottom = 75.0
+rect_min_size = Vector2( 1000, 150 )
+
+[node name="PlayArea" type="HBoxContainer" parent="Center"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -500.0
+margin_top = -60.0
+margin_right = 500.0
+margin_bottom = 60.0
+alignment = 1
+
+[node name="Self" type="VBoxContainer" parent="."]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 50.0
+margin_top = -268.0
+margin_right = -50.0
+margin_bottom = -50.0
+
+[node name="SelfName" type="Label" parent="Self"]
+margin_right = 1180.0
+margin_bottom = 45.0
+text = "Player 1"
+align = 1
+
+[node name="SelfScore" type="Label" parent="Self"]
+margin_top = 49.0
+margin_right = 1180.0
+margin_bottom = 94.0
+text = "Score: 0"
+align = 1
+
+[node name="SelfHand" type="HBoxContainer" parent="Self"]
+margin_top = 98.0
+margin_right = 1180.0
+margin_bottom = 98.0
+alignment = 1

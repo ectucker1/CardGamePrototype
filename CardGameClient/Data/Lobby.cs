@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using CardGameCommon;
 using CardGameCommon.States;
+using CardGameCommon.States.Lobby;
 using CardGameCommon.States.Playing;
 using Godot;
 
@@ -30,6 +31,8 @@ public class Lobby : Node
     public LobbyConnectState ConnectState { get; private set; }
     
     public string LobbyCode { get; private set; }
+    
+    public uint SelfID { get; private set; }
 
     [Signal]
     public delegate void Created();
@@ -141,6 +144,11 @@ public class Lobby : Node
             if (message is IGameState state)
             {
                 GameState = state;
+                EmitSignal(nameof(StateUpdated));
+            }
+            else if (message is SelfID selfId)
+            {
+                SelfID = selfId.PlayerID;
                 EmitSignal(nameof(StateUpdated));
             }
             else if (GameState != null)

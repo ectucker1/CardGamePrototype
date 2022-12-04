@@ -3,6 +3,7 @@ using System.Text;
 using CardGameCommon;
 using CardGameCommon.Lobby;
 using CardGameCommon.States;
+using CardGameCommon.States.Lobby;
 using CardGameServer.Websocket;
 
 namespace CardGameServer.Services;
@@ -51,6 +52,11 @@ public class GameMessageHandler : WebSocketHandler
         await base.OnConnected(socket);
 
         uint playerId = WebSocketConnectionManager.GetId(socket);
+
+        await SendMessageToAsync(playerId, new SelfID()
+        {
+            PlayerID = playerId
+        });
 
         Player player = new Player()
         {

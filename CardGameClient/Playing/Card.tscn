@@ -1,0 +1,7 @@
+[gd_scene format=2]
+
+[node name="Card" type="ColorRect"]
+margin_right = 80.0
+margin_bottom = 120.0
+rect_min_size = Vector2( 80, 120 )
+color = Color( 0.592157, 0.262745, 0.262745, 1 )
