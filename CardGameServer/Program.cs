@@ -1,4 +1,3 @@
-using System.Net;
 using CardGameServer.Services.Lobby;
 using CardGameServer.Websocket;
 

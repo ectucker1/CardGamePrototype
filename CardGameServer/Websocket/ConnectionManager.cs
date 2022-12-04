@@ -6,19 +6,22 @@ namespace CardGameServer.Websocket;
 // From https://radu-matei.com/blog/aspnet-core-websockets-middleware/
 public class ConnectionManager
 {
-    private ConcurrentDictionary<string, WebSocket> _sockets = new ConcurrentDictionary<string, WebSocket>();
+    private object _idLock = new object();
+    private uint _nextID = 1;
+    
+    private ConcurrentDictionary<uint, WebSocket> _sockets = new ConcurrentDictionary<uint, WebSocket>();
 
-    public WebSocket GetSocketById(string id)
+    public WebSocket GetSocketById(uint id)
     {
         return _sockets.FirstOrDefault(p => p.Key == id).Value;
     }
 
-    public ConcurrentDictionary<string, WebSocket> GetAll()
+    public ConcurrentDictionary<uint, WebSocket> GetAll()
     {
         return _sockets;
     }
 
-    public string GetId(WebSocket socket)
+    public uint GetId(WebSocket socket)
     {
         return _sockets.FirstOrDefault(p => p.Value == socket).Key;
     }
@@ -27,7 +30,7 @@ public class ConnectionManager
         _sockets.TryAdd(CreateConnectionId(), socket);
     }
 
-    public async Task RemoveSocket(string id)
+    public async Task RemoveSocket(uint id)
     {
         WebSocket socket;
         _sockets.TryRemove(id, out socket);
@@ -37,8 +40,14 @@ public class ConnectionManager
             cancellationToken: CancellationToken.None);
     }
 
-    private string CreateConnectionId()
+    private uint CreateConnectionId()
     {
-        return Guid.NewGuid().ToString();
+        uint id = 0;
+        lock (_idLock)
+        {
+            id = _nextID;
+            _nextID += 1;
+        }
+        return id;
     }
 }

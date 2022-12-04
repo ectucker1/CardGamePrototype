@@ -23,25 +23,25 @@ public abstract class WebSocketHandler
         await WebSocketConnectionManager.RemoveSocket(WebSocketConnectionManager.GetId(socket));
     }
 
-    public async Task SendMessageAsync(WebSocket socket, string message)
+    public async Task SendMessageAsync(WebSocket socket, byte[] message)
     {
         if(socket.State != WebSocketState.Open)
             return;
 
-        await socket.SendAsync(buffer: new ArraySegment<byte>(array: Encoding.ASCII.GetBytes(message),
+        await socket.SendAsync(buffer: new ArraySegment<byte>(array: message,
                 offset: 0,
                 count: message.Length),
-            messageType: WebSocketMessageType.Text,
+            messageType: WebSocketMessageType.Binary,
             endOfMessage: true,
             cancellationToken: CancellationToken.None);
     }
 
-    public async Task SendMessageAsync(string socketId, string message)
+    public async Task SendMessageAsync(uint socketId, byte[] message)
     {
         await SendMessageAsync(WebSocketConnectionManager.GetSocketById(socketId), message);
     }
 
-    public async Task SendMessageToAllAsync(string message)
+    public async Task SendMessageToAllAsync(byte[] message)
     {
         foreach(var pair in WebSocketConnectionManager.GetAll())
         {

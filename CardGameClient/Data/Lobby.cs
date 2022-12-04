@@ -1,7 +1,9 @@
 ﻿using System.Text;
+using CardGameCommon;
+using CardGameCommon.States;
 using Godot;
 
-public enum LobbyState
+public enum LobbyConnectState
 {
     NONE,
     CREATING,
@@ -24,7 +26,7 @@ public class Lobby : Node
     private static Lobby _instance;
     public static Lobby Instance => _instance;
     
-    public LobbyState State { get; private set; }
+    public LobbyConnectState ConnectState { get; private set; }
     
     public string LobbyCode { get; private set; }
 
@@ -36,6 +38,11 @@ public class Lobby : Node
 
     [Signal]
     public delegate void ConnectFailed(string error);
+
+    [Signal]
+    public delegate void StateUpdated();
+
+    public static IGameState GameState { get; set; }
 
     public override void _Ready()
     {
@@ -54,23 +61,23 @@ public class Lobby : Node
 
     public void CreateLobby()
     {
-        if (State == LobbyState.NONE)
+        if (ConnectState == LobbyConnectState.NONE)
         {
             _lobbyCreateRequest.Request(LOBBY_CREATE_URL);
-            State = LobbyState.CREATING;
+            ConnectState = LobbyConnectState.CREATING;
         }
     }
 
     public void JoinLobby(string code)
     {
-        if (State == LobbyState.NONE || State == LobbyState.CREATED)
+        if (ConnectState == LobbyConnectState.NONE || ConnectState == LobbyConnectState.CREATED)
         {
-            State = LobbyState.JOINING;
+            ConnectState = LobbyConnectState.JOINING;
             string url = $"{WS_BASE_URL}/game/{code}";
             var connected = (bool)_socketClient.Call("connect_url", url);
             if (!connected)
             {
-                State = LobbyState.NONE;
+                ConnectState = LobbyConnectState.NONE;
                 EmitSignal(nameof(ConnectFailed), "Could not join lobby");
             }
             else
@@ -82,7 +89,7 @@ public class Lobby : Node
 
     public void LeaveLobby()
     {
-        State = LobbyState.NONE;
+        ConnectState = LobbyConnectState.NONE;
         LobbyCode = "";
         _socketClient.Call("disconnect_host");
     }
@@ -92,31 +99,47 @@ public class Lobby : Node
         if (responseCode == 200)
         {
             LobbyCode = Encoding.UTF8.GetString(body);
-            State = LobbyState.CREATED;
+            ConnectState = LobbyConnectState.CREATED;
             EmitSignal(nameof(Created));
             JoinLobby(LobbyCode);
         }
         else
         {
             EmitSignal(nameof(ConnectFailed), "Could not create lobby.");
-            State = LobbyState.NONE;
+            ConnectState = LobbyConnectState.NONE;
         }
     }
 
     private void _SocketClosed(bool clean = false)
     {
-        State = LobbyState.NONE;
+        ConnectState = LobbyConnectState.NONE;
         EmitSignal(nameof(ConnectFailed), "Disconnected.");
     }
 
     private void _SocketConnected(string proto = "")
     {
-        State = LobbyState.JOINED;
+        ConnectState = LobbyConnectState.JOINED;
         EmitSignal(nameof(Joined));
     }
 
     private void _SocketData(byte[] data)
     {
-        string packet = data.GetStringFromUTF8();
+        if (ConnectState == LobbyConnectState.JOINED)
+        {
+            var message = MessageBuilder.ReadMessage(data);
+            GD.Print("Received message of type" + message.GetType().FullName);
+            if (message is IGameState state)
+            {
+                GameState = state;
+                EmitSignal(nameof(StateUpdated));
+            }
+            else if (GameState != null)
+            {
+                if (GameState.HandleMessage(0, message))
+                {
+                    EmitSignal(nameof(StateUpdated));
+                }
+            }
+        }
     }
 }

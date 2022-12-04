@@ -55,9 +55,9 @@ public class HomeScreen : Control
 
     private void UpdateButtonsEnabled()
     {
-        switch (Lobby.Instance.State)
+        switch (Lobby.Instance.ConnectState)
         {
-            case LobbyState.NONE:
+            case LobbyConnectState.NONE:
                 _hostBtn.Disabled = false;
                 _joinBtn.Disabled = _lobbyCodeEdit.Text.Length != 5;
                 break;
