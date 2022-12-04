@@ -2,6 +2,7 @@ using Godot;
 using CardGameCommon.States;
 using CardGameCommon.States.Lobby;
 using CardGameCommon.States.Playing;
+using Godot.Collections;
 
 public class PlayingScreen : Node
 {
@@ -57,16 +58,36 @@ public class PlayingScreen : Node
         }
     }
 
+    private void PlayCard(int index)
+    {
+        if (Lobby.GameState is PlayingState playing)
+        {
+            var card = playing.Hands[Lobby.Instance.SelfID].Cards[index];
+            Lobby.Instance.SendMessage(new PlayCard()
+            {
+                PlayerID = Lobby.Instance.SelfID,
+                Card = card,
+                Index = index
+            });
+        }
+    }
+
     private void UpdateDisplay(PlayingState state)
     {
         _selfName.Text = state.PlayerList.GetPlayer(Lobby.Instance.SelfID).Name;
         for (int i = 0; i < _selfHand.GetChildCount(); i++)
             _selfHand.GetChild(i).QueueFree();
-        foreach (var card in state.Hands[Lobby.Instance.SelfID].Cards)
+        for (int i = 0; i < state.Hands[Lobby.Instance.SelfID].Cards.Count; i++)
         {
+            var card = state.Hands[Lobby.Instance.SelfID].Cards[i];
+            
             var cardDisplay = _cardScene.Instance<ColorRect>();
             cardDisplay.Color = CardColor(card);
             _selfHand.AddChild(cardDisplay);
+
+            var playButton = cardDisplay.FindNode("PlayButton") as Button;
+            playButton.Visible = true;
+            playButton.Connect("pressed", this, nameof(PlayCard), new Array() { i }, (uint)ConnectFlags.Oneshot);
         }
         
         for (int i = 0; i < _opponentBox.GetChildCount(); i++)
@@ -90,6 +111,17 @@ public class PlayingScreen : Node
                     opponentHand.AddChild(cardDisplay);
                 }
             }
+        }
+        
+        for (int i = 0; i < _playArea.GetChildCount(); i++)
+            _playArea.GetChild(i).QueueFree();
+        for (int i = 0; i < state.PlayArea.Count; i++)
+        {
+            var card = state.PlayArea[i];
+            
+            var cardDisplay = _cardScene.Instance<ColorRect>();
+            cardDisplay.Color = CardColor(card);
+            _playArea.AddChild(cardDisplay);
         }
     }
 }

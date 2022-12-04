@@ -23,6 +23,9 @@ namespace CardGameCommon.States.Playing
         [ProtoMember(3)]
         public List<Card> Deck { get; private set; }
 
+        [ProtoMember(4)]
+        public List<Card> PlayArea { get; private set; } = new List<Card>();
+
         public PlayingState(LobbyState from)
         {
             PlayerList = from.PlayerList;
@@ -83,7 +86,16 @@ namespace CardGameCommon.States.Playing
         
         public bool ValidateMessage(uint source, IMessage message)
         {
-            return false;
+            switch (message)
+            {
+                case PlayCard playCard:
+                    return source == playCard.PlayerID
+                           && playCard.Index >= 0
+                           && playCard.Index < Hands[playCard.PlayerID].Cards.Count
+                           && Hands[playCard.PlayerID].Cards[playCard.Index] == playCard.Card;
+                default:
+                    return false;
+            }
         }
 
         public IGameState HandleMessage(IMessage message)
@@ -92,6 +104,10 @@ namespace CardGameCommon.States.Playing
             {
                 case SetHand hand:
                     Hands[hand.Player] = hand.NewHand;
+                    break;
+                case PlayCard playCard:
+                    Hands[playCard.PlayerID].Cards.RemoveAt(playCard.Index);
+                    PlayArea.Add(playCard.Card);
                     break;
             }
             return this;
