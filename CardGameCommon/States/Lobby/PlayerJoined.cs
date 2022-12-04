@@ -5,9 +5,11 @@ namespace CardGameCommon.Lobby
 {
     [ProtoContract]
     [Message]
-    public class PlayerJoined
+    public class PlayerJoined : IMessage
     {
         [ProtoMember(1)]
         public Player Player { get; set; }
+
+        public IMessage FilterSecrets() => this;
     }
 }

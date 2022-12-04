@@ -2,10 +2,12 @@
 
 namespace CardGameCommon.States
 {
-    public interface IGameState
+    public interface IGameState : IMessage
     {
         PlayerList PlayerList { get; }
+
+        bool ValidateMessage(uint source, IMessage message);
         
-        bool HandleMessage(uint source, object message);
+        IGameState HandleMessage(IMessage message);
     }
 }

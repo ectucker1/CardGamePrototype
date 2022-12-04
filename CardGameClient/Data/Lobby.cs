@@ -135,10 +135,8 @@ public class Lobby : Node
             }
             else if (GameState != null)
             {
-                if (GameState.HandleMessage(0, message))
-                {
-                    EmitSignal(nameof(StateUpdated));
-                }
+                GameState = GameState.HandleMessage(message);
+                EmitSignal(nameof(StateUpdated));
             }
         }
     }

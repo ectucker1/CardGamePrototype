@@ -23,7 +23,7 @@ public abstract class WebSocketHandler
         await WebSocketConnectionManager.RemoveSocket(WebSocketConnectionManager.GetId(socket));
     }
 
-    public async Task SendMessageAsync(WebSocket socket, byte[] message)
+    public async Task SendBytesAsync(WebSocket socket, byte[] message)
     {
         if(socket.State != WebSocketState.Open)
             return;
@@ -36,17 +36,17 @@ public abstract class WebSocketHandler
             cancellationToken: CancellationToken.None);
     }
 
-    public async Task SendMessageAsync(uint socketId, byte[] message)
+    public async Task SendBytesAsync(uint socketId, byte[] message)
     {
-        await SendMessageAsync(WebSocketConnectionManager.GetSocketById(socketId), message);
+        await SendBytesAsync(WebSocketConnectionManager.GetSocketById(socketId), message);
     }
 
-    public async Task SendMessageToAllAsync(byte[] message)
+    public async Task SendBytesToAllAsync(byte[] message)
     {
         foreach(var pair in WebSocketConnectionManager.GetAll())
         {
             if(pair.Value.State == WebSocketState.Open)
-                await SendMessageAsync(pair.Value, message);
+                await SendBytesAsync(pair.Value, message);
         }
     }
 

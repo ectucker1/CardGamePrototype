@@ -13,41 +13,58 @@ public class GameMessageHandler : WebSocketHandler
     
     public GameMessageHandler(ConnectionManager webSocketConnectionManager) : base(webSocketConnectionManager) { }
 
-    private bool HandleMessage(uint source, object message)
+    protected async Task SendMessageToAsync(uint player, IMessage message, bool filter = false)
     {
-        return _gameState.HandleMessage(0, message);
-    }
-
-    private async Task HandleThenSendMessageToAllAsync<T>(T message)
-    {
-        if (HandleMessage(0, message))
-        {
-            await SendMessageToAllAsync(MessageBuilder.WriteMessage(message));
-        }
+        await SendBytesAsync(player, MessageBuilder.WriteMessage(message, filter));
     }
     
+    protected async Task SendMessageToAllAsync(IMessage message, bool filter = false)
+    {
+        await SendBytesToAllAsync(MessageBuilder.WriteMessage(message, filter));
+    }
+
+    protected async Task SendSecretMessageToAllAsync(IMessage message, uint owner)
+    {
+        byte[] unfilteredBytes = MessageBuilder.WriteMessage(message, false);
+        byte[] filteredBytes = MessageBuilder.WriteMessage(message, true);
+        foreach(var pair in WebSocketConnectionManager.GetAll())
+        {
+            if (pair.Value.State == WebSocketState.Open)
+            {
+                await SendBytesAsync(pair.Value, pair.Key == owner ? unfilteredBytes : filteredBytes);
+            }
+        }
+    }
+
+    protected async Task HandleThenSendMessageToAllAsync(IMessage message, bool filter = false)
+    {
+        _gameState = _gameState.HandleMessage(message);
+        await SendMessageToAllAsync(message, filter);
+    }
+    
+    protected async Task HandleThenSendSecretMessageToAllAsync(IMessage message, uint owner)
+    {
+        _gameState = _gameState.HandleMessage(message);
+        await SendSecretMessageToAllAsync(message, owner);
+    }
+
     public override async Task OnConnected(WebSocket socket)
     {
         await base.OnConnected(socket);
 
-        uint socketId = WebSocketConnectionManager.GetId(socket);
+        uint playerId = WebSocketConnectionManager.GetId(socket);
 
         Player player = new Player()
         {
-            ID = socketId,
-            Name = $"Player {socketId}"
+            ID = playerId,
+            Name = $"Player {playerId}"
         };
         await HandleThenSendMessageToAllAsync(new PlayerJoined
         {
             Player = player
         });
 
-        switch (_gameState)
-        {
-            case LobbyState lobbyState:
-                await SendMessageAsync(socketId, MessageBuilder.WriteMessage(lobbyState));
-                break;
-        }
+        await SendMessageToAsync(playerId, _gameState);
     }
 
     public override async Task OnDisconnected(WebSocket socket)
@@ -63,7 +80,13 @@ public class GameMessageHandler : WebSocketHandler
 
     public override async Task ReceiveAsync(WebSocket socket, WebSocketReceiveResult result, byte[] buffer)
     {
-        var socketId = WebSocketConnectionManager.GetId(socket);
+        var source = WebSocketConnectionManager.GetId(socket);
         var message = MessageBuilder.ReadMessage(buffer);
+        
+        if (_gameState.ValidateMessage(source, message))
+        {
+            _gameState = _gameState.HandleMessage(message);
+            await SendMessageToAllAsync(message, true);
+        }
     }
 }

@@ -36,22 +36,26 @@ namespace CardGameCommon
             Console.WriteLine($"Registered {messageTypes.Count} message types.");
         }
         
-        public static byte[] WriteMessage<T>(T instance)
+        public static byte[] WriteMessage(IMessage message, bool filter)
         {
+            if (filter)
+                message = message.FilterSecrets();
+
+            Type type = message.GetType();
             MemoryStream stream = new MemoryStream();
-            stream.WriteByte(_messageIds[typeof(T)]);
-            Serializer.Serialize(stream, instance);
+            stream.WriteByte(_messageIds[type]);
+            Serializer.NonGeneric.Serialize(stream, message);
             return stream.ToArray();
         }
 
-        public static object ReadMessage(byte[] message)
+        public static IMessage ReadMessage(byte[] message)
         {
             if (message.Length < 2)
                 return null;
 
             Type type = _messageTypes[message[0]];
             MemoryStream protobuf = new MemoryStream(message, 1, message.Length - 1);
-            return Serializer.Deserialize(type, protobuf);
+            return Serializer.Deserialize(type, protobuf) as IMessage;
         }
         
         private class PredictableTypeComparer : IComparer<Type>
